@@ -3,9 +3,18 @@ require('express-async-errors');
 
 const express = require('express');
 const app = express();
+app.use(express.json());
+
+const cors = require('cors');
+
+app.use(cors({
+  origin: process.env.FRONTEND_URL, // Allow your frontend
+  credentials: true            
+}));
+
 
 const connectDB = require('./db/connect');
-const authenticateUser = require('./middleware/authentication');
+const authenticateUser = require('./middleware/auth');
 
 const authRouter = require('./routes/auth');
 
@@ -20,7 +29,7 @@ app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 
 
-const port = process.env.PORT || 5001;
+const port = process.env.PORT || 8000;
 const start = async () => {
   try {
     await connectDB(process.env.MONGO_URI);
