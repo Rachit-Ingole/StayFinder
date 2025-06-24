@@ -3,7 +3,7 @@ import { HiOutlineMenu } from "react-icons/hi";
 import { useNavigate } from 'react-router-dom';
 import { FaSearch } from 'react-icons/fa';
 
-export default function Navbar({ page }) {
+export default function Navbar({ search, setSearch, page }) {
   const [isOpen, setIsOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -11,6 +11,9 @@ export default function Navbar({ page }) {
   const [showGuests, setShowGuests] = useState(false);
   const [destination, setDestination] = useState('');
   const [guests, setGuests] = useState(1);
+  const [checkIn, setCheckIn] = useState('');
+  const [checkOut, setCheckOut] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const menuRef = useRef(null);
   const guestRef = useRef(null);
@@ -18,12 +21,62 @@ export default function Navbar({ page }) {
   const navigate = useNavigate();
 
   const destinations = [
-    { title: "Nearby", desc: "Find what’s around you" },
+    { title: "Nearby", desc: "Find what's around you" },
     { title: "Mumbai, Maharashtra", desc: "Gateway of India" },
     { title: "Goa, India", desc: "Beach destination" },
     { title: "Lonavala", desc: "Nature retreats" },
     { title: "New Delhi", desc: "Architecture and history" },
   ];
+
+  // Function to handle search
+  const handleSearch = async () => {
+    if (!destination.trim()) {
+      alert('Please select a destination');
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      // Parse destination to extract city/state
+      const [city, state] = destination.split(',').map(item => item.trim());
+      
+      // Build query parameters
+      const queryParams = new URLSearchParams();
+      
+      if (city && city !== 'Nearby') queryParams.append('city', city);
+      if (state) queryParams.append('state', state);
+      if (guests > 1) queryParams.append('guests', guests.toString());
+      
+      // Add date filters if needed (you can extend this based on your backend requirements)
+      if (checkIn) queryParams.append('checkIn', checkIn);
+      if (checkOut) queryParams.append('checkOut', checkOut);
+
+      const response = await fetch(`/api/v1/listings/get-homes?${queryParams.toString()}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+      console.log(data.data.homes)
+      if (data.success) {
+        setSearch(data.data.homes);
+        // Close all dropdowns
+        setShowSuggestions(false);
+        setShowGuests(false);
+      } else {
+        console.error('Search failed:', data.message);
+        alert('Search failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error searching homes:', error);
+      alert('An error occurred while searching. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Scroll behavior for search bar
   useEffect(() => {
@@ -88,7 +141,7 @@ export default function Navbar({ page }) {
             </div>
             <div className="border-b py-3 hover:text-blue-500 cursor-pointer  rounded px-2 " onClick={() => { navigate('/list'); setIsOpen(false); }}>
               <p className="font-semibold">List a Property</p>
-              <p className="text-gray-500 text-xs">It’s easy to start hosting and earn extra income.</p>
+              <p className="text-gray-500 text-xs">It's easy to start hosting and earn extra income.</p>
             </div>
             <div className="py-3 border-b px-2">
               <p className="cursor-pointer hover:underline">Refer a host</p>
@@ -140,13 +193,23 @@ export default function Navbar({ page }) {
             {/* Check-in */}
             <div className="px-4 py-2 border-l cursor-pointer ">
               <p className="text-[10px] font-semibold">Check in</p>
-              <input type="date" className="text-sm w-full focus:outline-none" />
+              <input 
+                type="date" 
+                className="text-sm w-full focus:outline-none" 
+                value={checkIn}
+                onChange={(e) => setCheckIn(e.target.value)}
+              />
             </div>
 
             {/* Check-out */}
             <div className="px-4 py-2 border-l cursor-pointer ">
               <p className="text-[10px] font-semibold">Check out</p>
-              <input type="date" className="text-sm w-full focus:outline-none" />
+              <input 
+                type="date" 
+                className="text-sm w-full focus:outline-none" 
+                value={checkOut}
+                onChange={(e) => setCheckOut(e.target.value)}
+              />
             </div>
 
             {/* Guests */}
@@ -168,8 +231,20 @@ export default function Navbar({ page }) {
             </div>
 
             {/* Search button */}
-            <div className="px-5 py-4 flex items-center justify-center rounded-[100%] hover:bg-blue-500 h-15 hover:text-white cursor-pointer">
-              <FaSearch className="text-sm" />
+            <div 
+              className={`px-5 py-4 flex items-center justify-center rounded-[100%] h-15 cursor-pointer transition-colors ${
+                isLoading 
+                  ? 'bg-gray-400 text-white cursor-not-allowed' 
+                  : 'hover:bg-blue-500 hover:text-white'
+              }`}
+              onClick={handleSearch}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              ) : (
+                <FaSearch className="text-sm" />
+              )}
             </div>
           </div>
         </div>

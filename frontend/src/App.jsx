@@ -17,7 +17,7 @@ function App() {
           <Route path="/" element={<LandingPage user={user} setUser={setUser} />} />
           <Route path="/homes" element={<LandingPage user={user} setUser={setUser} />} />
           <Route path="/services" element={<ServicePage user={user} setUser={setUser} />} />
-          <Route path="/login" element={<AuthPage mode="login" />} />
+          <Route path="/login" element={<AuthPage setUser={setUser} mode="login" />} />
           <Route path="/register" element={<AuthPage mode="register" />} />
           <Route path="/verify-email" element={<EmailVerification />} />
           <Route path="/list" element={<ListingPage />} />

@@ -20,6 +20,8 @@ const HomeListingSchema = new mongoose.Schema({
     currency: { type: String, default: 'INR' }
   },
   images: [String],
+  rating:String,
+  reviews:[String],
   home: {
     placeType: String,
     propertyType: String,

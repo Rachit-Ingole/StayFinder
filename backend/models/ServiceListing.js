@@ -20,6 +20,8 @@ const ServiceListingSchema = new mongoose.Schema({
     currency: { type: String, default: 'INR' }
   },
   images: [String],
+  rating:String,
+  reviews:[String],
   service: {
     serviceType: String,
     category: String,

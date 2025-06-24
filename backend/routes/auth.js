@@ -35,17 +35,13 @@ const emailLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-// Public routes
 router.post('/register', authLimiter, register);
 router.post('/login', authLimiter, login);
 router.get('/verify-email', verifyEmail);
 router.post('/resend-verification', emailLimiter, resendVerification);
 router.post('/forgot-password', emailLimiter, forgotPassword);
-
-// Protected routes (require authentication)
 router.get('/profile', protect, getProfile);
 
-// Health check route
 router.get('/health', (req, res) => {
   res.status(200).json({
     success: true,

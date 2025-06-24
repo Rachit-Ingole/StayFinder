@@ -27,6 +27,7 @@ const connectDB = require('./db/connect');
 const authenticateUser = require('./middleware/auth');
 
 const authRouter = require('./routes/auth');
+const listingsRouter = require('./routes/listings')
 
 // const mainRouter = require('./routes/main');
 const notFoundMiddleware = require('./middleware/not-found');
@@ -34,6 +35,7 @@ const errorHandlerMiddleware = require('./middleware/error-handler');
 
 
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/listings', listingsRouter);
 
 
 

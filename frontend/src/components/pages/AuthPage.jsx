@@ -93,7 +93,6 @@ const AuthPage = ({ mode = 'login' }) => {
       let result;
       
       if (isRegister) {
-        // Registration API call
         result = await makeApiCall('register', {
           name: formData.name,
           email: formData.email,
@@ -102,7 +101,6 @@ const AuthPage = ({ mode = 'login' }) => {
         
         setSuccessMessage(result.message || 'Registration successful! Please check your email to verify your account.');
         
-        // Reset form after successful registration
         setFormData({
           email: '',
           password: '',
@@ -111,7 +109,6 @@ const AuthPage = ({ mode = 'login' }) => {
         });
         
       } else {
-        // Login API call
         result = await makeApiCall('login', {
           name:formData.name,
           email: formData.email,
