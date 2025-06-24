@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Upload, Home, Briefcase, MapPin, DollarSign, Users, Bed, Bath, Wifi, Car, Camera, Clock, Shield, FileText } from 'lucide-react';
+import { useNavigate} from 'react-router-dom';
 
-const ListingPage = () => {
+const ListingPage = ({user,setUser}) => {
   const [listingType, setListingType] = useState('');
   const [currentStep, setCurrentStep] = useState(0);
   const API_URL = import.meta.env.VITE_API_URL;
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     type: '',
     title: '',
@@ -102,6 +104,27 @@ const ListingPage = () => {
     'Photography', 'Tutoring', 'Fitness Training', 'Beauty Services', 'Other'
   ];
 
+  useEffect(() => {
+    const checkLogin = async ()=>{
+      const authToken = localStorage.getItem('authToken');
+      const res = await fetch('/api/v1/check-login', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (res.success) {
+        setUser({...req.user,...authToken})
+      }else{
+        alert("Login in to view this page!")
+        navigate("/login")
+      }
+    }
+
+    checkLogin()
+  },[])
+
   const updateFormData = (path, value) => {
     setFormData(prev => {
       const keys = path.split('.');
@@ -158,7 +181,8 @@ const ListingPage = () => {
 
   const handleSubmit = async () => {
     try {
-        console.log(formData)
+      formData["host"]= user["name"]
+      formData["timeAsHost"] = "New" 
       const endpoint = listingType === 'home' 
         ? '/api/v1/listings/list-home'
         : '/api/v1/listings/list-service';

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Mail, Lock, User, CheckCircle, AlertCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const AuthPage = ({ mode = 'login' }) => {
   const [formData, setFormData] = useState({
@@ -82,6 +83,7 @@ const AuthPage = ({ mode = 'login' }) => {
     return result;
   };
 
+  const navigate = useNavigate()
   const handleSubmit = async () => {
     if (!validateForm()) return;
     
@@ -115,7 +117,6 @@ const AuthPage = ({ mode = 'login' }) => {
           password: formData.password
         });
         
-        // Store token in localStorage (or use your preferred storage method)
         if (result.data && result.data.token) {
           
           localStorage.setItem('authToken', result.data.token);
@@ -124,10 +125,8 @@ const AuthPage = ({ mode = 'login' }) => {
         
         setSuccessMessage(result.message || 'Login successful! Redirecting...');
         
-        // Redirect after successful login (you can customize this)
         setTimeout(() => {
-          // Replace with your redirect logic
-          window.location.href = '/';
+          navigate(-1)
         }, 1500);
       }
       

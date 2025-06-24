@@ -63,21 +63,21 @@ export default function LandingPage(props) {
   useEffect(() => {
     fetchListings();
   }, []);
-
+  
 
   const handleRetry = () => {
     fetchListings();
   };
-
+  console.log(listings)
   // If search results exist, show search layout
   if (search && Array.isArray(search)) {
     return (
       <>
         <Navbar setSearch={setSearch} search={search} page="homes" />
         
-        <div className="flex h-screen bg-gray-50 pt-16">
+        <div className="flex h-screen bg-gray-50 ">
           {/* Left side - Search results */}
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto pt-50">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
@@ -107,7 +107,7 @@ export default function LandingPage(props) {
           </div>
           
           {/* Right side - Map */}
-          <div className="w-1/2 h-full">
+          <div className="w-1/2 h-full pt-40">
             <div className="h-full p-6 pl-0">
                 <MapComponent hotels={search} hoveredHotel={hoveredHotel} setHoveredHotel={setHoveredHotel} />
             </div>
@@ -123,14 +123,14 @@ export default function LandingPage(props) {
       <Navbar setSearch={setSearch} search={search} page="homes" />
       
       {/* Hero Section */}
-      <div className="bg-gradient-to-b from-blue-50 to-white">
+      <div className="bg-gradient-to-b from-blue-50 to-white pt-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-4">
               Find your next stay
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Discover unique places to stay with local hosts in 191+ countries
+              Discover unique places to stay with StayFinder!
             </p>
           </div>
         </div>

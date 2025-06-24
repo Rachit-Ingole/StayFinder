@@ -1,11 +1,17 @@
 import { useState } from "react";
 import { Heart, Star, MapPin, Users, Bed, Bath } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-export default function ListingCard({ listing }){
+export default function ListingCard({ listing}){
   const [isLiked, setIsLiked] = useState(false);
+  const navigate = useNavigate()
+  const handleCardClick = () => {
+    navigate(`/listing/${listing._id}`);
+    console.log(`Navigate to listing ${listing._id}`);
+  };
   
   return (
-    <div className="group cursor-pointer">
+    <div className="group cursor-pointer" onClick={handleCardClick}>
       <div className="relative overflow-hidden rounded-xl mb-3">
         <img 
           src={listing.images[0] || "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400&h=300&fit=crop"}

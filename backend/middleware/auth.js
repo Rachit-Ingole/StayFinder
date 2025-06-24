@@ -1,9 +1,12 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+require('dotenv').config();
+
 
 const protect = async (req, res, next) => {
   try {
     let token;
+    console.log("AUTH HEADER:", req.headers.authorization);
 
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1];

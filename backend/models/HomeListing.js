@@ -15,6 +15,8 @@ const HomeListingSchema = new mongoose.Schema({
       lng: String
     }
   },
+  host:String,
+  timeAsHost:String,
   pricing: {
     basePrice: Number,
     currency: { type: String, default: 'INR' }

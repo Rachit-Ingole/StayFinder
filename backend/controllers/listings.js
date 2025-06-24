@@ -1,5 +1,6 @@
 const HomeListing = require("../models/HomeListing");
 const ServiceListing = require("../models/ServiceListing");
+require('dotenv').config();
 
 
 const listHome = async (req, res) => {

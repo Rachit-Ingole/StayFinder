@@ -9,21 +9,25 @@ export default function Navbar({ search, setSearch, page }) {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showGuests, setShowGuests] = useState(false);
+  const [showPriceRange, setShowPriceRange] = useState(false);
   const [destination, setDestination] = useState('');
   const [guests, setGuests] = useState(1);
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const menuRef = useRef(null);
   const guestRef = useRef(null);
   const destRef = useRef(null);
+  const priceRef = useRef(null);
   const navigate = useNavigate();
 
   const destinations = [
     { title: "Nearby", desc: "Find what's around you" },
-    { title: "Mumbai, Maharashtra", desc: "Gateway of India" },
-    { title: "Goa, India", desc: "Beach destination" },
+    { title: "Mumbai", desc: "Gateway of India" },
+    { title: "Goa", desc: "Beach destination" },
     { title: "Lonavala", desc: "Nature retreats" },
     { title: "New Delhi", desc: "Architecture and history" },
   ];
@@ -48,9 +52,13 @@ export default function Navbar({ search, setSearch, page }) {
       if (state) queryParams.append('state', state);
       if (guests > 1) queryParams.append('guests', guests.toString());
       
-      // Add date filters if needed (you can extend this based on your backend requirements)
+      // Add date filters if needed
       if (checkIn) queryParams.append('checkIn', checkIn);
       if (checkOut) queryParams.append('checkOut', checkOut);
+
+      // Add price range filters
+      if (minPrice && !isNaN(minPrice)) queryParams.append('minPrice', minPrice);
+      if (maxPrice && !isNaN(maxPrice)) queryParams.append('maxPrice', maxPrice);
 
       const response = await fetch(`/api/v1/listings/get-homes?${queryParams.toString()}`, {
         method: 'GET',
@@ -66,6 +74,7 @@ export default function Navbar({ search, setSearch, page }) {
         // Close all dropdowns
         setShowSuggestions(false);
         setShowGuests(false);
+        setShowPriceRange(false);
       } else {
         console.error('Search failed:', data.message);
         alert('Search failed. Please try again.');
@@ -95,10 +104,19 @@ export default function Navbar({ search, setSearch, page }) {
       if (menuRef.current && !menuRef.current.contains(e.target)) setIsOpen(false);
       if (guestRef.current && !guestRef.current.contains(e.target)) setShowGuests(false);
       if (destRef.current && !destRef.current.contains(e.target)) setShowSuggestions(false);
+      if (priceRef.current && !priceRef.current.contains(e.target)) setShowPriceRange(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Helper function to format price display
+  const getPriceRangeDisplay = () => {
+    if (!minPrice && !maxPrice) return 'Add price range';
+    if (minPrice && !maxPrice) return `₹${minPrice}+`;
+    if (!minPrice && maxPrice) return `Up to ₹${maxPrice}`;
+    return `₹${minPrice} - ₹${maxPrice}`;
+  };
 
   return (
     <>
@@ -157,7 +175,7 @@ export default function Navbar({ search, setSearch, page }) {
       {/* Search Bar */}
       <div className={`transition-transform duration-300 fixed top-20 w-full z-40 bg-white shadow-sm ${showSearch ? 'translate-y-0' : '-translate-y-full'}`}>
         <div className="flex justify-center py-3">
-          <div className="flex items-center rounded-full border shadow-sm w-[95%] max-w-5xl bg-white">
+          <div className="flex items-center rounded-full border shadow-sm w-[95%] max-w-6xl bg-white">
 
             {/* Where */}
             <div ref={destRef} className="relative flex-1 px-4 py-2 cursor-pointer" onClick={() => {setShowSuggestions(true)}}>
@@ -210,6 +228,60 @@ export default function Navbar({ search, setSearch, page }) {
                 value={checkOut}
                 onChange={(e) => setCheckOut(e.target.value)}
               />
+            </div>
+
+            {/* Price Range */}
+            <div ref={priceRef} className="relative px-4 py-2 border-l cursor-pointer min-w-[140px]">
+              <div onClick={() => setShowPriceRange(!showPriceRange)}>
+                <p className="text-[10px] font-semibold">Price</p>
+                <p className="text-sm text-gray-600">{getPriceRangeDisplay()}</p>
+              </div>
+              {showPriceRange && (
+                <div className="absolute top-[65px] right-0 bg-white border rounded-xl shadow-lg z-50 p-4 w-80">
+                  <p className="text-sm font-semibold mb-3">Price range per night</p>
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <div className="flex-1">
+                        <label className="text-xs text-gray-500">Minimum</label>
+                        <input
+                          type="number"
+                          placeholder="₹0"
+                          className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
+                          value={minPrice}
+                          onChange={(e) => setMinPrice(e.target.value)}
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <label className="text-xs text-gray-500">Maximum</label>
+                        <input
+                          type="number"
+                          placeholder="₹10000+"
+                          className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
+                          value={maxPrice}
+                          onChange={(e) => setMaxPrice(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex justify-between pt-2">
+                      <button 
+                        className="text-sm text-gray-600 hover:text-gray-800"
+                        onClick={() => {
+                          setMinPrice('');
+                          setMaxPrice('');
+                        }}
+                      >
+                        Clear
+                      </button>
+                      <button 
+                        className="bg-blue-500 text-white px-4 py-1 rounded-lg text-sm hover:bg-blue-600"
+                        onClick={() => setShowPriceRange(false)}
+                      >
+                        Done
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Guests */}
