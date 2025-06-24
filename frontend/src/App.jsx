@@ -40,7 +40,7 @@ function App() {
           <Route path="/register" element={<AuthPage mode="register" />} />
           <Route path="/verify-email" element={<EmailVerification />} />
           <Route path="/list" element={<ListingPage user={user} setUser={setUser}/>} />
-          <Route path="/listing/:listingId" element={<ListingDetail/>}/>
+          <Route path="/listing/:listingId" element={<ListingDetail user={user} setUser={setUser}/>}/>
           
           <Route path="*" element={<NotFound />} />
         </Routes>

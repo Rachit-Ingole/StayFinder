@@ -8,26 +8,25 @@ const cors = require('cors');
 const fs = require('fs');
 
 const app = express();
-app.use(express.json());
-
-
-app.use(cors({
-  origin: process.env.FRONTEND_URL, // Allow your frontend
-  credentials: true            
-}));
-
+const connectDB = require('./db/connect');
+const authenticateUser = require('./middleware/auth');
 const imagekit = new ImageKit({
   publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
   privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
   urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT
 });
 
-
-const connectDB = require('./db/connect');
-const authenticateUser = require('./middleware/auth');
-
 const authRouter = require('./routes/auth');
 const listingsRouter = require('./routes/listings')
+const paymentRoutes = require('./routes/payments');
+
+app.use('/api/v1/stripe', require('./routes/stripeWebhook')); 
+app.use(express.json());
+
+app.use(cors({
+  origin: process.env.FRONTEND_URL, // Allow your frontend
+  credentials: true            
+}));
 
 // const mainRouter = require('./routes/main');
 const notFoundMiddleware = require('./middleware/not-found');
@@ -43,6 +42,8 @@ app.get('/api/v1/check-login', authenticateUser.protect, async (req, res) => {
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/listings', listingsRouter);
+app.use('/api/v1/payment', paymentRoutes);
+
 
 
 

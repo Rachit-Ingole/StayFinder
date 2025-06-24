@@ -6,8 +6,9 @@ import {
   ArrowLeft, Share, Flag
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
+import CheckoutButton from "../CheckoutButton";
 
-export default function ListingDetail() {
+export default function ListingDetail({user,setUser}) {
   const { listingId } = useParams();
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -17,6 +18,7 @@ export default function ListingDetail() {
   const [checkOutDate, setCheckOutDate] = useState("");
   const [guests, setGuests] = useState(1);
   const [showBookingForm, setShowBookingForm] = useState(false);
+  const [totalAmount, setTotalAmount] = useState(0); // New state for total amount
   const [bookingData, setBookingData] = useState({
     name: "",
     email: "",
@@ -46,8 +48,13 @@ export default function ListingDetail() {
     fetchListing();
   }, [listingId]);
 
-  
- 
+  // Update total amount whenever dates change
+  useEffect(() => {
+    if (checkInDate && checkOutDate && listing) {
+      const total = calculateTotal();
+      setTotalAmount(total);
+    }
+  }, [checkInDate, checkOutDate, listing]);
 
   const nextImage = () => {
     if (listing?.images) {
@@ -87,31 +94,37 @@ export default function ListingDetail() {
     return 0;
   };
 
-  const handleBooking = () => {
-    if (!checkInDate || !checkOutDate) {
-      alert("Please select check-in and check-out dates");
-      return;
-    }
-    const checkLogin = async ()=>{
-      const authToken = localStorage.getItem('authToken');
-      const res = await fetch('/api/v1/check-login', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      const data = await res.json();
-      if (data.success) {
-        handleBooking()
-      }else{
-        alert("Login in to reserve!")
-        navigate("/login")
+  const handleBooking = async () => {
+  if (!checkInDate || !checkOutDate) {
+    alert("Please select check-in and check-out dates");
+    return;
+  }
+
+  try {
+    const authToken = localStorage.getItem('authToken');
+    const res = await fetch('/api/v1/check-login', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${authToken}`,
+        'Content-Type': 'application/json'
       }
+    });
+    const data = await res.json();
+    console.log(data);
+    
+    if (data.success) {
+      setUser(data.user);
+      setShowBookingForm(true); // Only show booking form after successful login check
+    } else {
+      alert("Login in to reserve!");
+      navigate("/login");
     }
-    checkLogin();
-    setShowBookingForm(true);
-  };
+  } catch (error) {
+    console.error("Error checking login:", error);
+    alert("Login in to reserve!");
+    navigate("/login");
+  }
+};
 
   const handleShare = async () => {
     try {
@@ -543,6 +556,34 @@ export default function ListingDetail() {
                   rows="3"
                 />
               </div>
+              
+              {/* Booking Summary */}
+              <div className="border-t pt-4 bg-gray-50 rounded-lg p-4">
+                <h4 className="font-medium mb-2">Booking Summary</h4>
+                <div className="text-sm space-y-1">
+                  <div className="flex justify-between">
+                    <span>Check-in:</span>
+                    <span>{checkInDate}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Check-out:</span>
+                    <span>{checkOutDate}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Guests:</span>
+                    <span>{guests}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Nights:</span>
+                    <span>{calculateNights()}</span>
+                  </div>
+                  <div className="flex justify-between font-semibold border-t pt-1">
+                    <span>Total:</span>
+                    <span>₹{totalAmount.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+
               <div className="flex space-x-4">
                 <button
                   type="button"
@@ -551,12 +592,19 @@ export default function ListingDetail() {
                 >
                   Cancel
                 </button>
-                <button
-                  onClick={submitBooking}
-                  className="flex-1 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                >
-                  Confirm Booking
-                </button>
+                <CheckoutButton
+                  amount={totalAmount}
+                  user={user}
+                  listingId={listing._id}
+                  checkInDate={checkInDate}
+                  checkOutDate={checkOutDate}
+                  guests={guests}
+                  specialRequests={bookingData.specialRequests}
+                  onSuccess={() => {
+                    setShowBookingForm(false);
+                    alert("Booking confirmed successfully!");
+                  }}
+                />
               </div>
             </div>
           </div>
