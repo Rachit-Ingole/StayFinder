@@ -7,14 +7,13 @@ export default function ListingCard({ listing}){
   const navigate = useNavigate()
   const handleCardClick = () => {
     navigate(`/listing/${listing._id}`);
-    console.log(`Navigate to listing ${listing._id}`);
   };
-  console.log(listing.images)
+
   return (
     <div className="group cursor-pointer" onClick={handleCardClick}>
       <div className="relative overflow-hidden rounded-xl mb-3">
         <img 
-          src={listing.images[0] || "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400&h=300&fit=crop"}
+          src={listing.images[0]}
           alt={listing.title}
           className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
         />

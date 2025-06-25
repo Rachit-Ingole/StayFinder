@@ -56,8 +56,7 @@ export default function LandingPage(props) {
   const handleRetry = () => {
     fetchListings();
   };
-  console.log(listings)
-  // If search results exist, show search layout
+  
   if (search && Array.isArray(search)) {
     return (
       <>

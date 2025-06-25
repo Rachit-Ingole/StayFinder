@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { HiOutlineMenu } from "react-icons/hi";
-import { FaUser } from "react-icons/fa";
+import { FaUser, FaSearch } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
-import { FaSearch } from 'react-icons/fa';
 
-export default function Navbar({ setUser,user,search, setSearch, page }) {
+export default function Navbar({ setUser, user, search, setSearch, page }) {
   const [isOpen, setIsOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -19,9 +18,10 @@ export default function Navbar({ setUser,user,search, setSearch, page }) {
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
   const [minPrice, setMinPrice] = useState('');
-  const [isLoggedIn,setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [maxPrice, setMaxPrice] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // Services specific states
   const [selectedCity, setSelectedCity] = useState('');
@@ -64,16 +64,14 @@ export default function Navbar({ setUser,user,search, setSearch, page }) {
     { title: "Beauty & Wellness", desc: "Personal care services" },
   ];
 
-  useEffect(()=>{
-    console.log("USER:",user)
-    if(user.token){
-      console.log("Treu")
-      setIsLoggedIn(true)
-    }else{
-      console.log("false")
-      setIsLoggedIn(false)
+  useEffect(() => {
+    console.log("USER:", user);
+    if (user?.token) {
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
     }
-  },[user])
+  }, [user]);
 
   const handleSearch = async () => {
     if (!destination.trim()) {
@@ -82,7 +80,6 @@ export default function Navbar({ setUser,user,search, setSearch, page }) {
     }
 
     setIsLoading(true);
-    
     try {
       const [city, state] = destination.split(',').map(item => item.trim());
       const queryParams = new URLSearchParams();
@@ -90,10 +87,8 @@ export default function Navbar({ setUser,user,search, setSearch, page }) {
       if (city && city !== 'Nearby') queryParams.append('city', city);
       if (state) queryParams.append('state', state);
       if (guests > 1) queryParams.append('guests', guests.toString());
-      
       if (checkIn) queryParams.append('checkIn', checkIn);
       if (checkOut) queryParams.append('checkOut', checkOut);
-
       if (minPrice && !isNaN(minPrice)) queryParams.append('minPrice', minPrice);
       if (maxPrice && !isNaN(maxPrice)) queryParams.append('maxPrice', maxPrice);
 
@@ -105,7 +100,6 @@ export default function Navbar({ setUser,user,search, setSearch, page }) {
       });
 
       const data = await response.json();
-      console.log(data.data.homes)
       if (data.success) {
         setSearch(data.data.homes);
         setShowSuggestions(false);
@@ -130,7 +124,6 @@ export default function Navbar({ setUser,user,search, setSearch, page }) {
     }
 
     setIsLoading(true);
-    
     try {
       const queryParams = new URLSearchParams();
       
@@ -147,7 +140,6 @@ export default function Navbar({ setUser,user,search, setSearch, page }) {
       });
 
       const data = await response.json();
-      console.log(data.data.services)
       if (data.success) {
         setSearch(data.data.services);
         setShowCities(false);
@@ -185,6 +177,7 @@ export default function Navbar({ setUser,user,search, setSearch, page }) {
       if (categoryRef.current && !categoryRef.current.contains(e.target)) setShowCategories(false);
       if (cityRef.current && !cityRef.current.contains(e.target)) setShowCities(false);
       if (servicePriceRef.current && !servicePriceRef.current.contains(e.target)) setShowPriceRange(false);
+      if (menuRef.current && !menuRef.current.contains(e.target)) setIsMobileMenuOpen(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -209,14 +202,15 @@ export default function Navbar({ setUser,user,search, setSearch, page }) {
       {/* Main Navbar */}
       <div className='h-20 w-full flex justify-between items-center px-5 fixed top-0 bg-white z-50 shadow'>
         <div
-          className='text-2xl text-blue-500 font-semibold flex items-center cursor-pointer'
+          className='flex items-center cursor-pointer'
           onClick={() => navigate('/homes')}
         >
           <img className='h-12 mr-2' src="/StayFinderLogo.png" alt="StayFinder Logo" />
-          StayFinder
+          <span className='text-2xl text-blue-500 font-semibold hidden md:block'>StayFinder</span>
         </div>
 
-        <div className='flex items-center font-semibold space-x-8'>
+        {/* Desktop Navigation */}
+        <div className='hidden md:flex items-center font-semibold space-x-8'>
           <div
             className={page === "homes" ? 'cursor-pointer text-blue-500 border-b-2 border-blue-500' : 'cursor-pointer'}
             onClick={() => navigate('/homes')}
@@ -232,9 +226,11 @@ export default function Navbar({ setUser,user,search, setSearch, page }) {
         </div>
 
         <div className='flex items-center gap-5'>
-          <div className='cursor-pointer hover:text-blue-500' onClick={() => navigate('/list')}>List Your Property/Service</div>
+          <div className='hidden md:block cursor-pointer hover:text-blue-500' onClick={() => navigate('/list')}>
+            List Your Property/Service
+          </div>
           
-          {/* Conditional rendering based on login status */}
+          {/* User Menu */}
           {isLoggedIn ? (
             <div className='relative'>
               <div 
@@ -243,8 +239,6 @@ export default function Navbar({ setUser,user,search, setSearch, page }) {
               >
                 <FaUser />
               </div>
-              
-              {/* User Menu Dropdown */}
               {showUserMenu && (
                 <div ref={userMenuRef} className="absolute right-0 top-12 w-48 bg-white border rounded-xl shadow-lg z-50 p-4 text-sm">
                   <div className="cursor-pointer hover:text-blue-500 rounded px-2 py-2" onClick={() => { navigate('/bookings'); setShowUserMenu(false); }}>
@@ -254,15 +248,60 @@ export default function Navbar({ setUser,user,search, setSearch, page }) {
               )}
             </div>
           ) : (
-            <div className='cursor-pointer hover:text-blue-500' onClick={() => navigate('/login')}>Log In</div>
+            <div className='hidden md:block cursor-pointer hover:text-blue-500' onClick={() => navigate('/login')}>
+              Log In
+            </div>
           )}
           
-          <div className='text-xl cursor-pointer hover:text-blue-500' onClick={() => setIsOpen(!isOpen)}><HiOutlineMenu /></div>
+          {/* Mobile Menu Button */}
+          <div className='text-xl cursor-pointer hover:text-blue-500' onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+            <HiOutlineMenu />
+          </div>
         </div>
 
-        {/* Menu Dropdown */}
+        {/* Mobile Menu Dropdown */}
+        {isMobileMenuOpen && (
+          <div ref={menuRef} className="absolute right-5 top-20 w-64 bg-white border rounded-xl shadow-lg z-50 p-4 text-sm md:hidden">
+            <div className="border-b pb-3">
+              <div
+                className={page === "homes" ? 'cursor-pointer text-blue-500 py-2' : 'cursor-pointer py-2'}
+                onClick={() => { navigate('/homes'); setIsMobileMenuOpen(false); }}
+              >
+                Homes
+              </div>
+              <div
+                className={page === "services" ? 'cursor-pointer text-blue-500 py-2' : 'cursor-pointer py-2'}
+                onClick={() => { navigate('/services'); setIsMobileMenuOpen(false); }}
+              >
+                Services
+              </div>
+            </div>
+            <div className="border-b py-3 cursor-pointer hover:text-blue-500 rounded px-2" onClick={() => { navigate('/list'); setIsMobileMenuOpen(false); }}>
+              <p className="font-semibold">List a Property</p>
+              <p className="text-gray-500 text-xs">It's easy to start hosting and earn extra income.</p>
+            </div>
+            <div className="border-b pb-3 cursor-pointer hover:text-blue-500 rounded px-2 py-1" onClick={() => { navigate('/help'); setIsMobileMenuOpen(false); }}>
+              <p className="font-bold">Help Centre</p>
+            </div>
+            <div className="py-3 px-2">
+              <p className="cursor-pointer hover:underline py-1">Refer a host</p>
+              <p className="cursor-pointer hover:underline py-1">Find a co-host</p>
+            </div>
+            {isLoggedIn ? (
+              <div className="pt-3 px-2 cursor-pointer hover:text-blue-500 rounded py-1" onClick={() => { navigate('/bookings'); setIsMobileMenuOpen(false); }}>
+                <p className="font-semibold">My Bookings</p>
+              </div>
+            ) : (
+              <div className="pt-3 px-2 cursor-pointer hover:text-blue-500 rounded py-1" onClick={() => { navigate('/login'); setIsMobileMenuOpen(false); }}>
+                <p>Log in or sign up</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Desktop Menu Dropdown */}
         {isOpen && (
-          <div ref={menuRef} className="absolute right-5 top-20 w-64 bg-white border rounded-xl shadow-lg z-50 p-4 text-sm">
+          <div ref={menuRef} className="hidden md:block absolute right-5 top-20 w-64 bg-white border rounded-xl shadow-lg z-50 p-4 text-sm">
             <div className="border-b pb-3 cursor-pointer hover:text-blue-500 rounded px-2 py-1" onClick={() => { navigate('/help'); setIsOpen(false); }}>
               <p className="font-bold">Help Centre</p>
             </div>
@@ -274,8 +313,6 @@ export default function Navbar({ setUser,user,search, setSearch, page }) {
               <p className="cursor-pointer hover:underline">Refer a host</p>
               <p className="cursor-pointer hover:underline">Find a co-host</p>
             </div>
-            
-            {/* Conditional menu items based on login status */}
             {isLoggedIn ? (
               <div className="pt-3 px-2 cursor-pointer hover:text-blue-500 rounded py-1" onClick={() => { navigate('/bookings'); setIsOpen(false); }}>
                 <p className="font-semibold">My Bookings</p>
@@ -289,15 +326,13 @@ export default function Navbar({ setUser,user,search, setSearch, page }) {
         )}
       </div>
 
-      {/* Conditional Search Bar based on page */}
       {page !== "services" ? (
         /* Homes Search Bar */
         <div className={`transition-transform duration-300 fixed top-20 w-full z-40 bg-white shadow-sm ${showSearch ? 'translate-y-0' : '-translate-y-full'}`}>
           <div className="flex justify-center py-3">
-            <div className="flex items-center rounded-full border shadow-sm w-[95%] max-w-6xl bg-white">
-
+            <div className="flex items-center rounded-full border shadow-sm w-[95%] max-w-6xl bg-white flex-wrap md:flex-nowrap p-2">
               {/* Where */}
-              <div ref={destRef} className="relative flex-1 px-4 py-2 cursor-pointer" onClick={() => {setShowSuggestions(true)}}>
+              <div ref={destRef} className="relative flex-1 px-2 py-1 cursor-pointer min-w-[120px] md:min-w-[150px]">
                 <p className="text-[10px] font-semibold">Where</p>
                 <input
                   type="text"
@@ -313,7 +348,7 @@ export default function Navbar({ setUser,user,search, setSearch, page }) {
                     {destinations.map((item, i) => (
                       <div
                         key={i}
-                        className="p-2  rounded-md cursor-pointer hover:text-blue-500"
+                        className="p-2 rounded-md cursor-pointer hover:text-blue-500"
                         onClick={() => {
                           setShowSuggestions(false);
                           setDestination(item.title);
@@ -327,8 +362,7 @@ export default function Navbar({ setUser,user,search, setSearch, page }) {
                 )}
               </div>
 
-              {/* Check-in */}
-              <div className="px-4 py-2 border-l cursor-pointer ">
+              <div className="hidden md:block px-2 py-1 border-l cursor-pointer min-w-[150px]">
                 <p className="text-[10px] font-semibold">Check in</p>
                 <input 
                   type="date" 
@@ -338,8 +372,7 @@ export default function Navbar({ setUser,user,search, setSearch, page }) {
                 />
               </div>
 
-              {/* Check-out */}
-              <div className="px-4 py-2 border-l cursor-pointer ">
+              <div className="hidden md:block px-2 py-1 border-l cursor-pointer min-w-[150px]">
                 <p className="text-[10px] font-semibold">Check out</p>
                 <input 
                   type="date" 
@@ -350,7 +383,7 @@ export default function Navbar({ setUser,user,search, setSearch, page }) {
               </div>
 
               {/* Price Range */}
-              <div ref={priceRef} className="relative px-4 py-2 border-l cursor-pointer min-w-[140px]">
+              <div ref={priceRef} className="relative px-2 py-1 border-l cursor-pointer min-w-[120px] md:min-w-[140px]">
                 <div onClick={() => setShowPriceRange(!showPriceRange)}>
                   <p className="text-[10px] font-semibold">Price</p>
                   <p className="text-sm text-gray-600">{getPriceRangeDisplay()}</p>
@@ -404,11 +437,11 @@ export default function Navbar({ setUser,user,search, setSearch, page }) {
               </div>
 
               {/* Guests */}
-              <div ref={guestRef} className="relative px-4 py-2 border-l cursor-pointer ">
-                  <div onClick={() => setShowGuests(!showGuests)}>
+              <div ref={guestRef} className="relative px-2 py-1 border-l cursor-pointer min-w-[50px] md:min-w-[120px]">
+                <div onClick={() => setShowGuests(!showGuests)}>
                   <p className="text-[10px] font-semibold">Who</p>
                   <p className="text-sm">{guests} guest{guests > 1 ? 's' : ''}</p>
-                  </div>
+                </div>
                 {showGuests && (
                   <div className="absolute top-[65px] right-0 bg-white border rounded-xl shadow-lg z-50 p-4">
                     <p className="text-sm font-semibold mb-2">Guests</p>
@@ -419,11 +452,11 @@ export default function Navbar({ setUser,user,search, setSearch, page }) {
                     </div>
                   </div>
                 )}
+                
+                
               </div>
-
-              {/* Search button */}
               <div 
-                className={`px-5 py-4 flex items-center justify-center rounded-[100%] h-15 cursor-pointer transition-colors ${
+                className={`px-4 py-2 flex items-center justify-center rounded-[100%] h-12 w-12 cursor-pointer transition-colors ${
                   isLoading 
                     ? 'bg-gray-400 text-white cursor-not-allowed' 
                     : 'hover:bg-blue-500 hover:text-white'
@@ -434,9 +467,10 @@ export default function Navbar({ setUser,user,search, setSearch, page }) {
                 {isLoading ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                 ) : (
-                  <FaSearch className="text-sm" />
+                  <FaSearch className="text-xl" />
                 )}
               </div>
+
             </div>
           </div>
         </div>
@@ -444,10 +478,10 @@ export default function Navbar({ setUser,user,search, setSearch, page }) {
         /* Services Search Bar */
         <div className={`transition-transform duration-300 fixed top-20 w-full z-40 bg-white shadow-sm ${showSearch ? 'translate-y-0' : '-translate-y-full'}`}>
           <div className="flex justify-center py-3">
-            <div className="flex items-center rounded-full border shadow-sm w-[95%] max-w-4xl bg-white">
+            <div className="flex items-center rounded-full border shadow-sm w-[95%] max-w-4xl bg-white flex-wrap md:flex-nowrap p-2">
 
               {/* City */}
-              <div ref={cityRef} className="relative flex-1 px-4 py-2 cursor-pointer" onClick={() => {setShowCities(true)}}>
+              <div ref={cityRef} className="relative flex-1 px-2 py-1 cursor-pointer min-w-[120px] md:min-w-[150px]" onClick={() => setShowCities(true)}>
                 <p className="text-[10px] font-semibold">City</p>
                 <input
                   type="text"
@@ -478,7 +512,7 @@ export default function Navbar({ setUser,user,search, setSearch, page }) {
               </div>
 
               {/* Category */}
-              <div ref={categoryRef} className="relative px-4 py-2 border-l cursor-pointer min-w-[180px]">
+              <div ref={categoryRef} className="relative px-2 py-1 border-l cursor-pointer min-w-[180px]">
                 <div onClick={() => setShowCategories(!showCategories)}>
                   <p className="text-[10px] font-semibold">Category</p>
                   <p className="text-sm text-gray-600">{selectedCategory || 'All services'}</p>
@@ -514,7 +548,7 @@ export default function Navbar({ setUser,user,search, setSearch, page }) {
               </div>
 
               {/* Service Price Range */}
-              <div ref={servicePriceRef} className="relative px-4 py-2 border-l cursor-pointer min-w-[140px]">
+              <div ref={servicePriceRef} className="relative px-2 py-1 border-l cursor-pointer min-w-[120px] md:min-w-[140px]">
                 <div onClick={() => setShowPriceRange(!showPriceRange)}>
                   <p className="text-[10px] font-semibold">Price</p>
                   <p className="text-sm text-gray-600">{getServicePriceRangeDisplay()}</p>
@@ -567,9 +601,8 @@ export default function Navbar({ setUser,user,search, setSearch, page }) {
                 )}
               </div>
 
-              {/* Search button */}
               <div 
-                className={`px-5 py-4 flex items-center justify-center rounded-[100%] h-15 cursor-pointer transition-colors ${
+                className={`px-4 py-2 flex items-center justify-center rounded-[100%] h-12 w-12 cursor-pointer transition-colors ${
                   isLoading 
                     ? 'bg-gray-400 text-white cursor-not-allowed' 
                     : 'hover:bg-blue-500 hover:text-white'
