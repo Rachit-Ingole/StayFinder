@@ -126,7 +126,7 @@ const AuthPage = ({ user,setUser,mode = 'login' }) => {
         setSuccessMessage(result.message || 'Login successful! Redirecting...');
         
         setTimeout(() => {
-          navigate('/home')
+          navigate('/homes')
         }, 1500);
       }
       
