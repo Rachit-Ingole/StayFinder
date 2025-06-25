@@ -9,7 +9,7 @@ export default function ListingCard({ listing}){
     navigate(`/listing/${listing._id}`);
     console.log(`Navigate to listing ${listing._id}`);
   };
-  
+  console.log(listing.images)
   return (
     <div className="group cursor-pointer" onClick={handleCardClick}>
       <div className="relative overflow-hidden rounded-xl mb-3">

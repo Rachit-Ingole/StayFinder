@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, Mail, Lock, User, CheckCircle, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const AuthPage = ({ mode = 'login' }) => {
+const AuthPage = ({ user,setUser,mode = 'login' }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -15,8 +15,9 @@ const AuthPage = ({ mode = 'login' }) => {
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
 
-  const isRegister = mode === 'register';
 
+  const isRegister = mode === 'register';
+  const navigate = useNavigate();
 
   const validateForm = () => {
     const newErrors = {};
@@ -56,7 +57,6 @@ const AuthPage = ({ mode = 'login' }) => {
       [name]: value
     }));
     
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -83,7 +83,6 @@ const AuthPage = ({ mode = 'login' }) => {
     return result;
   };
 
-  const navigate = useNavigate()
   const handleSubmit = async () => {
     if (!validateForm()) return;
     
@@ -121,19 +120,19 @@ const AuthPage = ({ mode = 'login' }) => {
           
           localStorage.setItem('authToken', result.data.token);
           localStorage.setItem('user', JSON.stringify(result.data.user));
+          setUser({...result.data.uesr,token:result.data.token})
         }
         
         setSuccessMessage(result.message || 'Login successful! Redirecting...');
         
         setTimeout(() => {
-          navigate(-1)
+          navigate('/home')
         }, 1500);
       }
       
     } catch (error) {
       console.error('Authentication error:', error);
       
-      // Handle specific error cases
       if (error.message.includes('verify your email')) {
         setErrors({ 
           submit: error.message,
@@ -173,9 +172,15 @@ const AuthPage = ({ mode = 'login' }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4 py-8">
       <div className="max-w-md w-full space-y-8">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          {/* Header */}
-          <div className="text-center mb-8">
+        <div className="bg-white rounded-2xl shadow-xl p-8 relative">
+          <button 
+            onClick={() => navigate('/')} 
+            className='absolute top-4 left-4 p-2 hover:bg-gray-100 rounded-full transition-colors'
+          >
+            <ArrowLeft className='h-5 w-5 text-gray-600' />
+          </button>
+
+          <div className="text-center mb-8 mt-8">
             <div className="mx-auto h-12 w-12 bg-blue-500 rounded-full flex items-center justify-center mb-4">
               <User className="h-6 w-6 text-white" />
             </div>
@@ -190,7 +195,6 @@ const AuthPage = ({ mode = 'login' }) => {
             </p>
           </div>
 
-          {/* Success Message */}
           {successMessage && (
             <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center">
               <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
@@ -198,7 +202,6 @@ const AuthPage = ({ mode = 'login' }) => {
             </div>
           )}
 
-          {/* Error Message */}
           {errors.submit && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
               <div className="flex items-center">
@@ -220,9 +223,7 @@ const AuthPage = ({ mode = 'login' }) => {
             </div>
           )}
 
-          {/* Form */}
           <div className="space-y-6">
-            {/* Name Field (Register only) */}
             {isRegister && (
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
@@ -248,7 +249,6 @@ const AuthPage = ({ mode = 'login' }) => {
               </div>
             )}
 
-            {/* Email Field */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address
@@ -272,7 +272,6 @@ const AuthPage = ({ mode = 'login' }) => {
               )}
             </div>
 
-            {/* Password Field */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                 Password
@@ -303,7 +302,6 @@ const AuthPage = ({ mode = 'login' }) => {
               )}
             </div>
 
-            {/* Confirm Password Field (Register only) */}
             {isRegister && (
               <div>
                 <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
@@ -336,7 +334,6 @@ const AuthPage = ({ mode = 'login' }) => {
               </div>
             )}
 
-            {/* Submit Button */}
             <button
               type="button"
               onClick={handleSubmit}
@@ -358,7 +355,6 @@ const AuthPage = ({ mode = 'login' }) => {
             </button>
           </div>
 
-          {/* Footer */}
           <div className="mt-8 text-center">
             <p className="text-sm text-gray-600">
               {isRegister ? 'Already have an account?' : "Don't have an account?"}{' '}
@@ -372,7 +368,6 @@ const AuthPage = ({ mode = 'login' }) => {
             </p>
           </div>
 
-          {/* Forgot Password (Login only) */}
           {!isRegister && (
             <div className="mt-4 text-center">
               <button

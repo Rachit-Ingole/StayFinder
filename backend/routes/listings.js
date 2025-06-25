@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const HomeListing = require('../models/HomeListing'); // Adjust path as needed
-const ServiceListing = require('../models/ServiceListing'); // Adjust path as needed
+const HomeListing = require('../models/HomeListing');
+const ServiceListing = require('../models/ServiceListing'); 
 const { listHome,listService, getServiceById, getHomeById, getAllServices, getAllHomes } = require('../controllers/listings');
 
 router.post('/list-home', listHome);

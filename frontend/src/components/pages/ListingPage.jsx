@@ -5,6 +5,7 @@ import { useNavigate} from 'react-router-dom';
 const ListingPage = ({user,setUser}) => {
   const [listingType, setListingType] = useState('');
   const [currentStep, setCurrentStep] = useState(0);
+  const [uploading,setUploading] = useState(false);
   const API_URL = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -61,6 +62,13 @@ const ListingPage = ({user,setUser}) => {
     }
   });
 
+  useEffect(()=>{
+    if(!user.token){
+      alert("Login in to view this page!")
+      navigate("/login")
+    }
+  },[user])
+
   const homeSteps = [
     'Listing Type',
     'Place Type',
@@ -104,26 +112,6 @@ const ListingPage = ({user,setUser}) => {
     'Photography', 'Tutoring', 'Fitness Training', 'Beauty Services', 'Other'
   ];
 
-  useEffect(() => {
-    const checkLogin = async ()=>{
-      const authToken = localStorage.getItem('authToken');
-      const res = await fetch('/api/v1/check-login', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      if (res.success) {
-        setUser({...req.user,...authToken})
-      }else{
-        alert("Login in to view this page!")
-        navigate("/login")
-      }
-    }
-
-    checkLogin()
-  },[])
 
   const updateFormData = (path, value) => {
     setFormData(prev => {
@@ -157,7 +145,7 @@ const ListingPage = ({user,setUser}) => {
     const files = Array.from(e.target.files);
     const formData = new FormData();
     files.forEach(file => formData.append("images", file));
-
+    setUploading(true);
     try {
         const response = await fetch(`${API_URL}/api/v1/upload`, {
         method: 'POST',
@@ -170,6 +158,7 @@ const ListingPage = ({user,setUser}) => {
 
         const data = await response.json();
         const urls = data.uploaded.map(img => img.url);
+        setUploading(false)
         updateFormData('images', urls);
     } catch (err) {
         console.error("Upload failed", err);
@@ -196,7 +185,8 @@ const ListingPage = ({user,setUser}) => {
       });
 
       if (response.ok) {
-        alert('Listing created successfully!');
+        alert('Listing created successfully! checkit out by searching the city');
+        navigate('/homes')
       } else {
         alert('Error creating listing. Please try again.');
       }
@@ -458,7 +448,7 @@ const ListingPage = ({user,setUser}) => {
               <MapPin className="w-6 h-6 inline mr-2" />
               Location
             </h2>
-            
+
             <div>
               <label className="block text-sm font-medium mb-2">Full Address</label>
               <input
@@ -480,7 +470,7 @@ const ListingPage = ({user,setUser}) => {
                   className="w-full p-3 border border-gray-300 rounded-lg"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium mb-2">State/Province</label>
                 <input
@@ -502,7 +492,7 @@ const ListingPage = ({user,setUser}) => {
                   className="w-full p-3 border border-gray-300 rounded-lg"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium mb-2">Country</label>
                 <input
@@ -513,7 +503,34 @@ const ListingPage = ({user,setUser}) => {
                 />
               </div>
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Latitude</label>
+                <input
+                  type="number"
+                  value={formData.location.coordinates.lat}
+                  onChange={(e) => updateFormData('location.coordinates.lat', e.target.value)}
+                  placeholder="e.g. 17.21"
+                  className="w-full p-3 border border-gray-300 rounded-lg"
+                  step="any"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Longitude</label>
+                <input
+                  type="number"
+                  value={formData.location.coordinates.lng}
+                  onChange={(e) => updateFormData('location.coordinates.lng', e.target.value)}
+                  placeholder="e.g. 70.12"
+                  className="w-full p-3 border border-gray-300 rounded-lg"
+                  step="any"
+                />
+              </div>
+            </div>
           </div>
+
         );
 
       case 4: // Amenities (Home) or Pricing (Service)
@@ -723,14 +740,13 @@ const ListingPage = ({user,setUser}) => {
           return (
             <div className="space-y-6">
               <h2 className="text-2xl font-bold">
-                <DollarSign className="w-6 h-6 inline mr-2" />
-                Pricing & Fees
+                ₹ Pricing & Fees
               </h2>
               
               <div>
                 <label className="block text-sm font-medium mb-2">Base Price per Night</label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₹</span>
                   <input
                     type="number"
                     value={formData.pricing.basePrice}
@@ -745,7 +761,7 @@ const ListingPage = ({user,setUser}) => {
                 <div>
                   <label className="block text-sm font-medium mb-2">Cleaning Fee</label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₹</span>
                     <input
                       type="number"
                       value={formData.home.fees.cleaningFee}
@@ -886,6 +902,11 @@ const ListingPage = ({user,setUser}) => {
                     Choose Photos
                   </label>
                 </div>
+                {uploading && (
+                   <p className="text-sm text-gray-600 mt-2">
+                    Wait till Uploading...
+                  </p>
+                )}
                 {formData.images.length > 0 && (
                   <p className="text-sm text-gray-600 mt-2">
                     {formData.images.length} photo(s) selected

@@ -4,18 +4,6 @@ import Navbar from "../Navbar";
 import ListingCard from "../ListingCard";
 import MapComponent from "../MapComponent";
 
-const SearchListingCard = ({ listing, onHover, isHovered }) => (
-  <div 
-    className={`transition-all duration-200 ${
-      isHovered ? 'ring-2 ring-blue-500 shadow-lg rounded-lg' : ''
-    }`}
-    onMouseEnter={() => onHover && onHover(listing._id)}
-    onMouseLeave={() => onHover && onHover(null)}
-  >
-    <ListingCard listing={listing} />
-  </div>
-);
-
 export default function LandingPage(props) {
   const { user, setUser } = props;
   const [listings, setListings] = useState({});
@@ -25,7 +13,7 @@ export default function LandingPage(props) {
   const [hoveredHotel, setHoveredHotel] = useState(null);
 
   const cities = ["Mumbai", "New Delhi", "Goa", "Lonavala"];
-
+  
   const fetchListings = async () => {
     setLoading(true);
     setError(null);
@@ -73,7 +61,7 @@ export default function LandingPage(props) {
   if (search && Array.isArray(search)) {
     return (
       <>
-        <Navbar setSearch={setSearch} search={search} page="homes" />
+        <Navbar setUser={setUser} user={user} setSearch={setSearch} search={search} page="homes" />
         
         <div className="flex h-screen bg-gray-50 ">
           {/* Left side - Search results */}
@@ -120,7 +108,7 @@ export default function LandingPage(props) {
   // Original landing page layout when no search
   return (
     <>
-      <Navbar setSearch={setSearch} search={search} page="homes" />
+      <Navbar setUser={setUser} user={user} setSearch={setSearch} search={search} page="homes" />
       
       {/* Hero Section */}
       <div className="bg-gradient-to-b from-blue-50 to-white pt-40">

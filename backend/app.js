@@ -19,6 +19,7 @@ const imagekit = new ImageKit({
 const authRouter = require('./routes/auth');
 const listingsRouter = require('./routes/listings')
 const paymentRoutes = require('./routes/payments');
+const bookingsRouter = require('./routes/bookings')
 
 app.use('/api/v1/stripe', require('./routes/stripeWebhook')); 
 app.use(express.json());
@@ -40,6 +41,7 @@ app.get('/api/v1/check-login', authenticateUser.protect, async (req, res) => {
   });
 });
 
+app.use('/api/v1/bookings',authenticateUser.protect,bookingsRouter);
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/listings', listingsRouter);
 app.use('/api/v1/payment', paymentRoutes);

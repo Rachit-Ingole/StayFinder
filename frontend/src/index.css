@@ -12,6 +12,21 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+.scroll-box {
+  border: 1px solid black;
+  border-radius: 1rem;
+  max-height: 300px;
+  overflow-y: auto;
+
+  /* prevent scrollbar overflow */
+  mask-image: radial-gradient(white, black);
+  -webkit-mask-image: radial-gradient(white, black);
+  -webkit-mask-composite: destination-in;
+  mask-composite: intersect;
+}
+
+
 /* 
 a {
   font-weight: 500;

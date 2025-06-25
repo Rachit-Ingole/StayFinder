@@ -100,6 +100,11 @@ export default function ListingDetail({user,setUser}) {
     return;
   }
 
+  if(checkInDate == checkOutDate){
+    alert("Same date cannot be selected");
+    return;
+  }
+
   try {
     const authToken = localStorage.getItem('authToken');
     const res = await fetch('/api/v1/check-login', {
@@ -113,8 +118,8 @@ export default function ListingDetail({user,setUser}) {
     console.log(data);
     
     if (data.success) {
-      setUser(data.user);
-      setShowBookingForm(true); // Only show booking form after successful login check
+      setUser({...data.user,token:authToken})
+      setShowBookingForm(true); 
     } else {
       alert("Login in to reserve!");
       navigate("/login");
@@ -133,11 +138,6 @@ export default function ListingDetail({user,setUser}) {
     } catch (err) {
       console.error("Failed to copy URL:", err);
     }
-  };
-
-  const submitBooking = () => {
-    alert("Booking request submitted successfully!");
-    setShowBookingForm(false);
   };
 
   if (loading) {
@@ -159,8 +159,12 @@ export default function ListingDetail({user,setUser}) {
     );
   }
 
-  console.log(listing)
-  
+  const lat = Number(listing?.location?.coordinates?.lat);
+  const lng = Number(listing?.location?.coordinates?.lng);
+  const delta = 0.01;
+  const bbox = `${lng - delta}%2C${lat - delta}%2C${lng + delta}%2C${lat + delta}`;
+  const marker = `${lat}%2C${lng}`;
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -333,17 +337,38 @@ export default function ListingDetail({user,setUser}) {
                 )}
               </div>
 
+
               {/* Location Section */}
               <div className="border-t pt-8">
                 <h3 className="text-xl font-semibold mb-4">Where you'll be</h3>
-                <div className="bg-gray-100 rounded-xl h-64 flex items-center justify-center mb-4">
-                  <div className="text-center text-gray-600">
-                    <MapPin className="w-12 h-12 mx-auto mb-2" />
-                    <p className="font-medium">{listing.location.city}, {listing.location.state}</p>
-                    <p className="text-sm">{listing.location.address}</p>
-                  </div>
+                <div className="rounded-xl overflow-hidden mb-4">
+                  
+                    <iframe
+                      width="100%"
+                      height="256"
+                      className="rounded-xl border"
+                      src={`https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${marker}`}
+                      style={{ border: 0 }}
+                      allowFullScreen=""
+                      loading="lazy"
+                    />
+                  <p className="text-sm text-gray-600 mt-2">
+                    <a
+                      href={`https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline"
+                    >
+                      View on OpenStreetMap
+                    </a>
+                  </p>
+                </div>
+                <div className="text-gray-700">
+                  <p className="font-medium">{listing.location.city}, {listing.location.state}</p>
+                  <p className="text-sm">{listing.location.address}</p>
                 </div>
               </div>
+
 
               {/* Host Information */}
               <div className="border-t pt-8">

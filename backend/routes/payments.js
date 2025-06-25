@@ -1,4 +1,3 @@
-// routes/paymentRoutes.js
 require('dotenv').config();
 const express = require('express');
 const router = express.Router();
@@ -18,7 +17,7 @@ router.post('/create-checkout-session', async (req, res) => {
             product_data: {
               name: 'StayFinder Booking',
             },
-            unit_amount: amount * 100, // Convert ₹500 to paise
+            unit_amount: amount * 100, 
           },
           quantity: 1,
         },
