@@ -17,13 +17,13 @@ export default function LandingPage(props) {
   const fetchListings = async () => {
     setLoading(true);
     setError(null);
-    
+    const API_URL = import.meta.env.VITE_API_URL;
     try {
       const listingsData = {};
       await Promise.all(
         cities.map(async (city) => {
           try {
-            const response = await fetch(`/api/v1/listings/get-homes?city=${encodeURIComponent(city)}&limit=4`);
+            const response = await fetch(`${API_URL}/api/v1/listings/get-homes?city=${encodeURIComponent(city)}&limit=4`);
             
             if (!response.ok) {
               throw new Error(`Failed to fetch listings for ${city}: ${response.status}`);
