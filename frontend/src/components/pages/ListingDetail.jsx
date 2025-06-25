@@ -25,12 +25,12 @@ export default function ListingDetail({user,setUser}) {
     phone: "",
     specialRequests: ""
   });
-
+  const API_URL = import.meta.env.VITE_API_URL;
   const navigate = useNavigate()
   useEffect(() => {
     const fetchListing = async () => {
         try {
-        const response = await fetch(`/api/v1/listings/get-home/${listingId}`);
+        const response = await fetch(`${API_URL}/api/v1/listings/get-home/${listingId}`);
         const data = await response.json();
 
         if(!data.success){
@@ -107,7 +107,7 @@ export default function ListingDetail({user,setUser}) {
 
   try {
     const authToken = localStorage.getItem('authToken');
-    const res = await fetch('/api/v1/check-login', {
+    const res = await fetch(`${API_URL}/api/v1/check-login`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${authToken}`,

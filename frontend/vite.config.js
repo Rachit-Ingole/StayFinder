@@ -6,9 +6,8 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   server: {
     proxy: {
-      "/auth": "http://localhost:8000",
       "/api": {
-        target: "http://localhost:8000",
+        target: import.meta.env.VITE_API_URL,
         changeOrigin: true,
       },
     },

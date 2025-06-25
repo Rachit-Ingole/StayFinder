@@ -23,7 +23,7 @@ export default function Navbar({ setUser, user, search, setSearch, page }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
-  // Services specific states
+  const API_URL = import.meta.env.VITE_API_URL;
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [serviceMinPrice, setServiceMinPrice] = useState('');
@@ -92,7 +92,7 @@ export default function Navbar({ setUser, user, search, setSearch, page }) {
       if (minPrice && !isNaN(minPrice)) queryParams.append('minPrice', minPrice);
       if (maxPrice && !isNaN(maxPrice)) queryParams.append('maxPrice', maxPrice);
 
-      const response = await fetch(`/api/v1/listings/get-homes?${queryParams.toString()}`, {
+      const response = await fetch(`${API_URL}/api/v1/listings/get-homes?${queryParams.toString()}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -132,7 +132,7 @@ export default function Navbar({ setUser, user, search, setSearch, page }) {
       if (serviceMinPrice && !isNaN(serviceMinPrice)) queryParams.append('minPrice', serviceMinPrice);
       if (serviceMaxPrice && !isNaN(serviceMaxPrice)) queryParams.append('maxPrice', serviceMaxPrice);
 
-      const response = await fetch(`/api/v1/services/get-services?${queryParams.toString()}`, {
+      const response = await fetch(`${API_URL}/api/v1/services/get-services?${queryParams.toString()}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

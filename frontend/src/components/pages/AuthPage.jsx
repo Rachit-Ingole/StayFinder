@@ -64,9 +64,9 @@ const AuthPage = ({ user,setUser,mode = 'login' }) => {
       }));
     }
   };
-
+  const API_URL = import.meta.env.VITE_API_URL;
   const makeApiCall = async (endpoint, data) => {
-    const response = await fetch(`/api/v1/auth/${endpoint}`, {
+    const response = await fetch(`${API_URL}/api/v1/auth/${endpoint}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
