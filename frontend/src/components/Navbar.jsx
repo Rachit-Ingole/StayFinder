@@ -261,7 +261,7 @@ export default function Navbar({ setUser, user, search, setSearch, page }) {
 
         {/* Mobile Menu Dropdown */}
         {isMobileMenuOpen && (
-          <div ref={menuRef} className="absolute right-5 top-20 w-64 bg-white border rounded-xl shadow-lg z-50 p-4 text-sm md:hidden">
+          <div ref={menuRef} className="absolute right-5 top-20 w-64 bg-white border rounded-xl shadow-lg z-50 p-4 text-sm ">
             <div className="border-b pb-3">
               <div
                 className={page === "homes" ? 'cursor-pointer text-blue-500 py-2' : 'cursor-pointer py-2'}
